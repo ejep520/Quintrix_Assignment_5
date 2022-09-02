@@ -2,7 +2,6 @@ package com.quintrix.jepsen.erik.fifth.dao;
 
 import java.sql.Types;
 import java.util.List;
-import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -11,7 +10,9 @@ import com.quintrix.jepsen.erik.fifth.model.Department;
 
 @Repository
 public class DepartmentDaoImpl implements DepartmentDao {
+  @Autowired
   private JdbcTemplate template;
+
   private final String CREATE_DEPT_TABLE_SAFE =
       "CREATE TABLE IF NOT EXISTS departments " + "(deptId INTEGER AUTO_INCREMENT NOT NULL, "
           + "deptName TINYTEXT, " + "CONSTRAINT PK_departments PRIMARY KEY (deptId));";
@@ -24,11 +25,6 @@ public class DepartmentDaoImpl implements DepartmentDao {
   private final String ADD_DEPARTMENT = "INSERT INTO departments (deptName) VALUES (?);";
   private final String UPDATE_DEPARTMENT = "UPDATE departments SET deptName = ? WHERE deptId = ?;";
   private final String DELETE_DEPARTMENT = "DELETE FROM departments WHERE deptId = ?;";
-
-  @Autowired
-  public DepartmentDaoImpl(DataSource ds) {
-    template = new JdbcTemplate(ds);
-  }
 
   @Override
   public Department[] GetAllDepartments() {

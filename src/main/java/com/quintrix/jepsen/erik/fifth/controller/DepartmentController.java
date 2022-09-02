@@ -14,7 +14,7 @@ import com.quintrix.jepsen.erik.fifth.model.Department;
 
 @RestController
 public class DepartmentController {
-  @Autowired()
+  @Autowired
   DepartmentDao deptDao;
 
   @GetMapping("/departments")

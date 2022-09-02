@@ -10,7 +10,9 @@ import com.quintrix.jepsen.erik.fifth.model.Person;
 
 @Repository
 public class PersonDaoImpl implements PersonDao {
+  @Autowired
   private JdbcTemplate template;
+
   private final String CreateTableSafe = "CREATE TABLE IF NOT EXISTS persons "
       + "(personId INTEGER NOT NULL AUTO_INCREMENT, " + "fName TINYTEXT, " + "lname TINYTEXT, "
       + "deptId INTEGER, " + "CONSTRAINT PK_Person PRIMARY KEY (personId), "
@@ -28,11 +30,6 @@ public class PersonDaoImpl implements PersonDao {
       "UPDATE persons SET fName = ?, lName = ?, deptId = ? WHERE personId = ?;";
   private final String UPDATE_PERSON_FORMAT = "UPDATE persons SET %s = ? WHERE personId = ?;";
   private final String DELETE_PERSON = "DELETE FROM persons WHERE personId = ?;";
-
-  @Autowired
-  public PersonDaoImpl(DataSource ds) {
-    template = new JdbcTemplate(ds);
-  }
 
   @Override
   public Person[] GetPersons() {
