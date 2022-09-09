@@ -45,11 +45,6 @@ public class DepartmentController {
     return "Fail";
   }
 
-  @GetMapping("/config/new/table/departments")
-  public void configTableDepartmentsNew() {
-    deptDao.CreateDeptTable();
-  }
-
   @PostMapping("/departments/new")
   @ResponseBody
   public String departmentsNew(@RequestParam Department department) {

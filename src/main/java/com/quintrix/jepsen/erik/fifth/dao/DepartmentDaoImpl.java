@@ -7,6 +7,8 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import com.quintrix.jepsen.erik.fifth.model.Department;
+import com.quintrix.jepsen.erik.fifth.utils.DepartmentExtractor;
+import com.quintrix.jepsen.erik.fifth.utils.DepartmentMapper;
 
 @Repository
 public class DepartmentDaoImpl implements DepartmentDao {

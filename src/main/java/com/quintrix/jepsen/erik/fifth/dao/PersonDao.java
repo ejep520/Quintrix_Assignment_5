@@ -19,7 +19,7 @@ public interface PersonDao {
    * @param lName The last name of the persons being sought.
    * @return An array of the persons with the provided last name.
    */
-  public Person[] GetPersonsByLastName(String lName);
+  public Person[] getPersonsByLastName(String lName);
 
   /**
    * Get all persons from the database with the provided first name.
@@ -27,11 +27,11 @@ public interface PersonDao {
    * @param fName The first (or given) name of the persons being sought.
    * @return An array of persons matching the search.
    */
-  public Person[] GetPersonsByFirstName(String fName);
+  public Person[] getPersonsByFirstName(String fName);
 
-  public Person GetPersonById(int personId);
+  public Person getPersonById(int personId);
 
-  public Person[] GetPersonsByDeptId(int deptId);
+  public Person[] getPersonsByDeptId(int deptId);
 
   /**
    * Creates the "persons" table; forcibly replacing it if necessary.
@@ -39,12 +39,12 @@ public interface PersonDao {
    * @param forceReplacement Indicates whether the table should be forcibly recreated if it already
    *        exists.
    */
-  public void CreatePersonsTable(boolean forceReplacement);
+  public void createPersonsTable(boolean forceReplacement);
 
   /**
    * Creates the "persons" table if it doesn't already exist.
    */
-  public void CreatePersonsTable();
+  public void createPersonsTable();
 
   /**
    * Creates a new person in the DB.
@@ -52,7 +52,7 @@ public interface PersonDao {
    * @param person The data to be written into the DB.
    * @return The number of entries affected. != 1 indicates failure.
    */
-  public int PersonNew(Person person);
+  public int personNew(Person person);
 
   /**
    * Replaces the existing data for a specified person, overwriting all previous info regardless of
@@ -88,7 +88,9 @@ public interface PersonDao {
    * @param deptId The ID of the department the person is being reassigned to.
    * @return The number of entries affected. != 1 indicates failure.
    */
-  public int UpdatePersonDept(int personId, int deptId);
+  public int updatePersonDept(int personId, int deptId);
 
-  public int DeletePerson(int personId);
+  public int deletePerson(int personId);
+
+  public Person getLastPerson();
 }

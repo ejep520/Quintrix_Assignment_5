@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import com.quintrix.jepsen.erik.fifth.model.Person;
+import com.quintrix.jepsen.erik.fifth.utils.PersonExtractor;
+import com.quintrix.jepsen.erik.fifth.utils.PersonMapper;
 
 @Repository
 public class PersonDaoImpl implements PersonDao {
@@ -30,6 +32,7 @@ public class PersonDaoImpl implements PersonDao {
       "UPDATE persons SET fName = ?, lName = ?, deptId = ? WHERE personId = ?;";
   private final String UPDATE_PERSON_FORMAT = "UPDATE persons SET %s = ? WHERE personId = ?;";
   private final String DELETE_PERSON = "DELETE FROM persons WHERE personId = ?;";
+  private final String GET_LAST_PERSON = "SELECT * FROM persons ORDER BY personId DESC LIMIT 1;";
 
   @Override
   public Person[] GetPersons() {
@@ -38,16 +41,16 @@ public class PersonDaoImpl implements PersonDao {
   }
 
   @Override
-  public Person[] GetPersonsByLastName(String lName) {
-    return GetSomePersons(lName, "lName");
+  public Person[] getPersonsByLastName(String lName) {
+    return getSomePersons(lName, "lName");
   }
 
   @Override
-  public Person[] GetPersonsByFirstName(String fName) {
-    return GetSomePersons(fName, "fName");
+  public Person[] getPersonsByFirstName(String fName) {
+    return getSomePersons(fName, "fName");
   }
 
-  private Person[] GetSomePersons(String searchKey, String field) {
+  private Person[] getSomePersons(String searchKey, String field) {
     Object[] args = {searchKey};
     int[] types = {Types.VARCHAR};
     List<Person> somePersons =
@@ -56,7 +59,7 @@ public class PersonDaoImpl implements PersonDao {
   }
 
   @Override
-  public void CreatePersonsTable(boolean forceReplacement) {
+  public void createPersonsTable(boolean forceReplacement) {
     if (forceReplacement)
       template.execute(CreateTableUnsafe);
     else
@@ -64,8 +67,8 @@ public class PersonDaoImpl implements PersonDao {
   }
 
   @Override
-  public void CreatePersonsTable() {
-    CreatePersonsTable(false);
+  public void createPersonsTable() {
+    createPersonsTable(false);
   }
 
   @Override
@@ -74,7 +77,7 @@ public class PersonDaoImpl implements PersonDao {
   }
 
   @Override
-  public int PersonNew(Person person) {
+  public int personNew(Person person) {
     Object[] args = {person.getfName(), person.getlName(), person.getDeptId()};
     int[] types = {Types.VARCHAR, Types.VARCHAR, Types.INTEGER};
     return template.update(ADD_PERSON, args, types);
@@ -103,14 +106,14 @@ public class PersonDaoImpl implements PersonDao {
   }
 
   @Override
-  public int UpdatePersonDept(int personId, int deptId) {
+  public int updatePersonDept(int personId, int deptId) {
     Object[] args = {deptId, personId};
     int[] types = {Types.INTEGER, Types.INTEGER};
     return template.update(String.format(UPDATE_PERSON_FORMAT, "deptId"), args, types);
   }
 
   @Override
-  public Person GetPersonById(int personId) {
+  public Person getPersonById(int personId) {
     Object[] args = {personId};
     int[] types = {Types.INTEGER};
     return template.query(GET_ONE, args, types, new PersonExtractor());
@@ -125,14 +128,19 @@ public class PersonDaoImpl implements PersonDao {
   }
 
   @Override
-  public Person[] GetPersonsByDeptId(int deptId) {
+  public Person[] getPersonsByDeptId(int deptId) {
     return GetSomeEq("deptId", deptId);
   }
 
   @Override
-  public int DeletePerson(int personId) {
+  public int deletePerson(int personId) {
     Object[] args = {personId};
     int[] types = {Types.INTEGER};
     return template.update(DELETE_PERSON, args, types);
+  }
+
+  @Override
+  public Person getLastPerson() {
+    return template.query(GET_LAST_PERSON, new PersonExtractor());
   }
 }

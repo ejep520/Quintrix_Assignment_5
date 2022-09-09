@@ -1,4 +1,4 @@
-package com.quintrix.jepsen.erik.fifth.dao;
+package com.quintrix.jepsen.erik.fifth.utils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -6,7 +6,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import com.quintrix.jepsen.erik.fifth.model.Person;
 
-class PersonExtractor implements ResultSetExtractor<Person> {
+public class PersonExtractor implements ResultSetExtractor<Person> {
 
   @Override
   public Person extractData(ResultSet rs) throws SQLException, DataAccessException {

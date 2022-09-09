@@ -1,4 +1,4 @@
-package com.quintrix.jepsen.erik.fifth.dao;
+package com.quintrix.jepsen.erik.fifth.utils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -8,7 +8,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import com.quintrix.jepsen.erik.fifth.model.Department;
 
-class DepartmentMapper implements ResultSetExtractor<List<Department>> {
+public class DepartmentMapper implements ResultSetExtractor<List<Department>> {
 
   @Override
   public List<Department> extractData(ResultSet rs) throws SQLException, DataAccessException {
