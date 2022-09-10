@@ -1,0 +1,12 @@
+server:
+  port: 9811
+
+spring:
+  datasource:
+    url: jdbc:mysql://database.floor_five.example.com/fifth
+    username: DBAdmin
+    password: S8)WxEbPmHnaLXW9ZAB#
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+fifth:
+  baseUri: http://www.example.com:9811

@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.quintrix.jepsen.erik.fifth.dao.PersonDao;
 import com.quintrix.jepsen.erik.fifth.model.Person;
 
@@ -30,10 +33,27 @@ public class PersonController {
     return new ResponseEntity<>(results, null, HttpStatus.OK);
   }
 
+  /*
+   * @PostMapping("/person/new") public ResponseEntity<Person> personNew(@RequestParam String
+   * fName, @RequestParam String lName,
+   * 
+   * @RequestParam int deptId) { if (personDao.personNew(new Person(fName, lName, deptId)) == 1)
+   * return new ResponseEntity<>(personDao.getLastPerson(), null, HttpStatus.CREATED); return new
+   * ResponseEntity<>(null, null, HttpStatus.BAD_REQUEST); }
+   */
+
   @PostMapping("/person/new")
-  public ResponseEntity<Person> personNew(@RequestParam String fName, @RequestParam String lName,
-      @RequestParam int deptId) {
-    if (personDao.personNew(new Person(fName, lName, deptId)) == 1)
+  public ResponseEntity<Person> personNew(@RequestParam String person) {
+    Person personObj = null;
+    ObjectMapper objectMapper = new ObjectMapper();
+    try {
+      personObj = objectMapper.readValue(person, Person.class);
+    } catch (JsonMappingException e) {
+      e.printStackTrace();
+    } catch (JsonProcessingException e) {
+      e.printStackTrace();
+    }
+    if (personObj != null && personDao.personNew(personObj) == 1)
       return new ResponseEntity<>(personDao.getLastPerson(), null, HttpStatus.CREATED);
     return new ResponseEntity<>(null, null, HttpStatus.BAD_REQUEST);
   }
