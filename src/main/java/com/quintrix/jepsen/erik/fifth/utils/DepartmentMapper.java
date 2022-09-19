@@ -15,8 +15,7 @@ public class DepartmentMapper implements ResultSetExtractor<List<Department>> {
     Department newDepartment;
     List<Department> result = new ArrayList<>();
     while (rs.next()) {
-      newDepartment = new Department(rs.getString("deptName"));
-      newDepartment.setDeptNumber(rs.getInt("deptId"));
+      newDepartment = new Department(rs.getString("deptName"), rs.getInt("deptId"));
       result.add(newDepartment);
     }
     return result;

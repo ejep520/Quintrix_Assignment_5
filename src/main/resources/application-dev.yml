@@ -2,11 +2,19 @@ server:
   port: 8080
 
 spring:
+  main:
+    allow-bean-definition-overriding: true
   datasource:
     url: jdbc:mysql://localhost/fifth
     username: DBAdmin
     password: admin
     driver-class-name: com.mysql.cj.jdbc.Driver
+
+hibernate:
+  dialect: org.hibernate.dialect.MySQL8Dialect
+  show-sql: true
+  hbm2dll:
+    auto: true
 
 fifth:
   baseUri: http://localhost:8080

@@ -12,131 +12,119 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.quintrix.jepsen.erik.fifth.dao.PersonDao;
+import com.quintrix.jepsen.erik.fifth.model.Department;
 import com.quintrix.jepsen.erik.fifth.model.Person;
+import com.quintrix.jepsen.erik.fifth.service.DepartmentService;
+import com.quintrix.jepsen.erik.fifth.service.PersonService;
 
 @RestController
 public class PersonController {
   @Autowired
-  private PersonDao personDao;
+  private PersonService personService;
+  @Autowired
+  DepartmentService deptService;
   @Value("${fifth.baseUri}")
   private String baseUri;
 
+
+
   @GetMapping("/person")
   public ResponseEntity<Person[]> person() {
-    Person[] results = personDao.GetPersons();
+    Person[] results = personService.getAllPersons();
     if (results.length == 0)
       return new ResponseEntity<>(results, null, HttpStatus.NOT_FOUND);
     return new ResponseEntity<>(results, null, HttpStatus.OK);
   }
 
-  /*
-   * @PostMapping("/person/new") public ResponseEntity<Person> personNew(@RequestParam String
-   * fName, @RequestParam String lName,
-   * 
-   * @RequestParam int deptId) { if (personDao.personNew(new Person(fName, lName, deptId)) == 1)
-   * return new ResponseEntity<>(personDao.getLastPerson(), null, HttpStatus.CREATED); return new
-   * ResponseEntity<>(null, null, HttpStatus.BAD_REQUEST); }
-   */
-
   @PostMapping("/person/new")
-  public ResponseEntity<Person> personNew(@RequestParam String person) {
-    Person personObj = null;
-    ObjectMapper objectMapper = new ObjectMapper();
-    try {
-      personObj = objectMapper.readValue(person, Person.class);
-    } catch (JsonMappingException e) {
-      e.printStackTrace();
-    } catch (JsonProcessingException e) {
-      e.printStackTrace();
-    }
-    if (personObj != null && personDao.personNew(personObj) == 1)
-      return new ResponseEntity<>(personDao.getLastPerson(), null, HttpStatus.CREATED);
-    return new ResponseEntity<>(null, null, HttpStatus.BAD_REQUEST);
+  public ResponseEntity<Person> personNew(@RequestParam Person person) {
+    Person personOut = personService.createPerson(person);
+    if (person != null && personOut != null)
+      return new ResponseEntity<>(personOut, HttpStatus.CREATED);
+    return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
   }
 
   @GetMapping("person/last/{lName}")
   public ResponseEntity<Person[]> getPersonLast(@PathVariable String lName) {
-    Person[] results = personDao.getPersonsByLastName(lName);
+    Person[] results = personService.getPersonsByLastName(lName);
     if (results.length == 0)
-      return new ResponseEntity<>(results, null, HttpStatus.NOT_FOUND);
-    return new ResponseEntity<>(results, null, HttpStatus.OK);
+      return new ResponseEntity<>(results, HttpStatus.NOT_FOUND);
+    return new ResponseEntity<>(results, HttpStatus.OK);
   }
 
   @GetMapping("person/first/{fName}")
   public ResponseEntity<Person[]> getPersonFirst(@PathVariable String fName) {
-    Person[] results = personDao.getPersonsByFirstName(fName);
+    Person[] results = personService.getPersonsByFirstName(fName);
     if (results.length == 0)
-      return new ResponseEntity<>(results, null, HttpStatus.NOT_FOUND);
-    return new ResponseEntity<>(results, null, HttpStatus.OK);
+      return new ResponseEntity<>(results, HttpStatus.NOT_FOUND);
+    return new ResponseEntity<>(results, HttpStatus.OK);
   }
 
   @GetMapping("person/dept/{deptId}")
   public ResponseEntity<Person[]> getPersonDept(@PathVariable int deptId) {
-    Person[] results = personDao.getPersonsByDeptId(deptId);
+    Department dept = deptService.findById(deptId);
+    if (dept == null)
+      return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+    Person[] results = personService.getPersonsByDeptId(dept);
     if (results.length == 0)
-      return new ResponseEntity<>(results, null, HttpStatus.NOT_FOUND);
-    return new ResponseEntity<>(results, null, HttpStatus.OK);
+      return new ResponseEntity<>(results, HttpStatus.NOT_FOUND);
+    return new ResponseEntity<>(results, HttpStatus.OK);
   }
 
   @GetMapping("person/{personId}")
   public ResponseEntity<Person> getPersonId(@PathVariable int personId) {
-    Person result = personDao.getPersonById(personId);
+    Person result = personService.getPersonById(personId);
     if (result == null)
-      return new ResponseEntity<>(null, null, HttpStatus.NOT_FOUND);
-    return new ResponseEntity<>(result, null, HttpStatus.OK);
+      return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+    return new ResponseEntity<>(result, HttpStatus.OK);
   }
 
   @PutMapping("person/{personId}")
   public ResponseEntity<Person> putPersonId(@PathVariable int personId,
       @RequestParam Person person) {
     person.setPersonId(personId);
-    if (personDao.getPersonById(personId) == null)
-      return new ResponseEntity<>(null, null, HttpStatus.NOT_FOUND);
-    if (personDao.UpdatePerson(person) == 1)
-      return new ResponseEntity<>(personDao.getPersonById(personId), null, HttpStatus.OK);
-    return new ResponseEntity<>(null, null, HttpStatus.INTERNAL_SERVER_ERROR);
+    if (personService.getPersonById(personId) == null)
+      return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+    if (personService.updatePerson(person) != null)
+      return new ResponseEntity<>(personService.getPersonById(personId), null, HttpStatus.OK);
+    return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
   @DeleteMapping("person/{personId}")
   public ResponseEntity<Person> deletePersonId(@PathVariable int personId) {
-    if (personDao.getPersonById(personId) == null)
+    if (personService.getPersonById(personId) == null)
       return new ResponseEntity<>(null, null, HttpStatus.NOT_FOUND);
-    if (personDao.deletePerson(personId) == 1)
-      return new ResponseEntity<>(null, null, HttpStatus.NO_CONTENT);
-    return new ResponseEntity<>(null, null, HttpStatus.INTERNAL_SERVER_ERROR);
+    personService.deletePersonById(personId);
+    return new ResponseEntity<>(null, null, HttpStatus.NO_CONTENT);
   }
 
   @PatchMapping("person/{id}/firstName")
   public ResponseEntity<Person> patchPersonIdfName(@PathVariable int id,
       @RequestParam String fName) {
-    if (personDao.getPersonById(id) == null)
+    if (personService.getPersonById(id) == null)
       return new ResponseEntity<>(null, null, HttpStatus.NOT_FOUND);
-    if (personDao.UpdatePersonFName(id, fName) == 1)
-      return new ResponseEntity<>(personDao.getPersonById(id), null, HttpStatus.OK);
+    if (personService.UpdatePersonFName(id, fName) == 1)
+      return new ResponseEntity<>(personService.getPersonById(id), null, HttpStatus.OK);
     return new ResponseEntity<>(null, null, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
   @PatchMapping("person/{id}/lastName")
   public ResponseEntity<Person> patchPersonIdlName(@PathVariable int id,
       @RequestParam String lName) {
-    if (personDao.getPersonById(id) == null)
+    if (personService.getPersonById(id) == null)
       return new ResponseEntity<>(null, null, HttpStatus.NOT_FOUND);
-    if (personDao.UpdatePersonLName(id, lName) == 1)
-      return new ResponseEntity<>(personDao.getPersonById(id), null, HttpStatus.OK);
+    if (personService.UpdatePersonLName(id, lName) == 1)
+      return new ResponseEntity<>(personService.getPersonById(id), null, HttpStatus.OK);
     return new ResponseEntity<>(null, null, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
   @PatchMapping("person/{personId}/deptId")
   public ResponseEntity<Person> patchPersonIdDeptId(@PathVariable int personId,
       @RequestParam int deptId) {
-    if (personDao.getPersonById(personId) == null)
+    if (personService.getPersonById(personId) == null)
       return new ResponseEntity<>(null, null, HttpStatus.NOT_FOUND);
-    if (personDao.updatePersonDept(personId, deptId) == 1)
-      return new ResponseEntity<>(personDao.getPersonById(personId), null, HttpStatus.OK);
-    return new ResponseEntity<>(null, null, HttpStatus.INTERNAL_SERVER_ERROR);
+    if (personService.updatePersonDept(personId, deptId) != null)
+      return new ResponseEntity<>(personService.getPersonById(personId), HttpStatus.OK);
+    return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 }

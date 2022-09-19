@@ -11,8 +11,7 @@ public class DepartmentExtractor implements ResultSetExtractor<Department> {
     Department department;
     if (rs == null || !rs.next())
       return null;
-    department = new Department(rs.getString("deptName"));
-    department.setDeptNumber(rs.getInt("deptId"));
+    department = new Department(rs.getString("deptName"), rs.getInt("deptId"));
     return department;
   }
 }
